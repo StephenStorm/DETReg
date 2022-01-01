@@ -41,12 +41,20 @@ class SelfDet(Dataset):
     """
 
     def __init__(self, root, detection_transform, query_transform, cache_dir=None, max_prop=30, strategy='topk'):
+        '''
+        root :imagenet train path 
+        detection_transform=make_self_det_transforms('train'),  # 和Deformable_DETR一样，对整张图片做的变换。
+        query_transform=get_query_transforms('train'),  # 对image中按照selective search裁剪出来的patch做变换
+        cache_dir=args.cache_path,
+        max_prop=args.max_prop, # 30
+        strategy=args.strategy
+        '''
         super(SelfDet, self).__init__()
-        self.strategy = strategy
+        self.strategy = strategy # topk
         self.cache_dir = cache_dir
         self.query_transform = query_transform
         self.root = root
-        self.max_prop = max_prop
+        self.max_prop = max_prop # 30
         self.detection_transform = detection_transform
         self.files = []
         self.dist2 = -np.log(np.arange(1, 301) / 301) / 10
@@ -102,6 +110,7 @@ class SelfDet(Dataset):
         target['labels'] = torch.ones(len(target['boxes'])).long()
         img, target = self.detection_transform(img, target)
         if len(target['boxes']) < 2:
+            # 防止因为数据增强而使得部分box删除后数量小于2
             return self.__getitem__(random.randint(0, len(self.files) - 1))
         return img, target
 
@@ -208,5 +217,7 @@ def get_query_transforms(image_set):
 
 
 def build_selfdet(image_set, args, p):
+    # image_set = 'train'
+    # p : path to imagenet train floder
     return SelfDet(p, detection_transform=make_self_det_transforms(image_set), query_transform=get_query_transforms(image_set), cache_dir=args.cache_path,
                    max_prop=args.max_prop, strategy=args.strategy)

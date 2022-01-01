@@ -56,10 +56,10 @@ def main(args):
     random.seed(seed)
     print(f"Using random seed: {seed}")
     swav_model = None
-    if args.dataset in PRETRAINING_DATASETS:
+    if args.dataset in PRETRAINING_DATASETS: # True
         if args.obj_embedding_head == 'head':
             swav_model = build_swav_backbone(args, device)
-        elif args.obj_embedding_head == 'intermediate':
+        elif args.obj_embedding_head == 'intermediate': # default
             swav_model = build_swav_backbone_old(args, device)
     model, criterion, postprocessors = build_model(args)
     model.to(device)
@@ -83,6 +83,7 @@ def main(args):
     else:
         sampler_train = torch.utils.data.RandomSampler(dataset_train)
         sampler_val = torch.utils.data.SequentialSampler(dataset_val)
+    
     coco_evaluator = None
     batch_sampler_train = torch.utils.data.BatchSampler(
         sampler_train, args.batch_size, drop_last=True)
@@ -144,7 +145,7 @@ def main(args):
     else:
         base_ds = dataset_val
 
-    if args.frozen_weights is not None:
+    if args.frozen_weights is not None: # 
         checkpoint = torch.load(args.frozen_weights, map_location='cpu')
         model_without_ddp.detr.load_state_dict(checkpoint['model'])
 
