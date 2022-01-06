@@ -1,0 +1,15 @@
+exps
+data
+datasets/__pycache__/
+datasets/torchvision_datasets/__pycache__/
+fine_tune_full_coco.out
+models/__pycache__/
+prepare_ilsvrc100.sh
+question.txt
+util/__pycache__/
+models/ops/MultiScaleDeformableAttention.egg-info/
+models/ops/build/
+models/ops/dist/
+models/ops/functions/__pycache__/
+models/ops/modules/__pycache__/
+__pycache__/
