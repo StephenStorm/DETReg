@@ -28,6 +28,10 @@ from models import build_model
 from models.backbone import build_swav_backbone, build_swav_backbone_old
 from util.default_args import set_model_defaults, get_args_parser
 
+
+from datasets.mosaic import MosaicDetection
+from datasets.mosaic_utils import TrainTransform
+
 PRETRAINING_DATASETS = ['imagenet', 'imagenet100', 'coco_pretrain', 'airbus_pretrain']
 
 
@@ -70,6 +74,8 @@ def main(args):
     print('number of params:', n_parameters)
 
     dataset_train, dataset_val = get_datasets(args)
+    # dataset_train = MosaicDetection(dataset_train, preproc=TrainTransform(max_labels=200), img_size = (1280, 1280))
+    # print(len(dataset_train))
 
     if args.distributed:
         if args.cache_mode:
@@ -105,7 +111,7 @@ def main(args):
         return out
 
     for n, p in model_without_ddp.named_parameters():
-        print(n)
+        print(n, p.shape, p.requires_grad)
 
     param_dicts = [
         {
@@ -234,7 +240,7 @@ def main(args):
                     'epoch': epoch,
                     'args': args,
                 }, checkpoint_path)
-        if args.dataset in ['coco', 'voc'] and epoch % args.eval_every == 0:
+        if args.dataset in ['coco', 'voc', 'trademark'] and epoch % args.eval_every == 0:
             test_stats, coco_evaluator = evaluate(
                 model, criterion, postprocessors, data_loader_val, base_ds, device, args.output_dir
             )
@@ -300,6 +306,10 @@ def get_datasets(args):
                                      transforms=make_coco_transforms('train'), filter_pct=args.filter_pct)
         dataset_val = VOCDetection(args.voc_path, ["2007"], image_sets=[
                                    'test'], transforms=make_coco_transforms('val'))
+    elif args.dataset == 'trademark':
+        from datasets.coco import build_trademark
+        dataset_train = build_trademark(image_set='train', args=args)
+        dataset_val = build_trademark(image_set='val', args=args)
     else:
         raise ValueError(f"Wrong dataset name: {args.dataset}")
 

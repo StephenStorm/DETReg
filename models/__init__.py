@@ -21,7 +21,9 @@ from .transformer import build_transformer
 
 
 def build_model(args):
-    if args.dataset_file == 'coco':
+    if args.dataset == 'trademark' :
+        num_classes = 50
+    elif args.dataset_file == 'coco':
         num_classes = 90
     elif args.dataset_file == 'coco_panoptic':
         num_classes = 250

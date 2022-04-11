@@ -8,6 +8,10 @@ import torch
 
 def to_cuda(samples, targets, device):
     samples = samples.to(device, non_blocking=True)
+    # for t in targets:
+    #     for k, v in t.items():
+    #         print(k, type(v))
+    #         print(v)
     targets = [{k: v.to(device, non_blocking=True) for k, v in t.items()} for t in targets]
     return samples, targets
 
